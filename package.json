@@ -1,0 +1,13 @@
+{
+  "name": "personal_site_email_client",
+  "version": "1.0.0",
+  "description": "AWS Lambda - Rust Email Client",
+  "main": "index.js",
+  "repository": "git@github.com:naamancurtis/personal_site_email_client.git",
+  "author": "Naaman <naaman.the.dev@gmail.com>",
+  "license": "None",
+  "private": true,
+  "dependencies": {
+    "serverless-rust": "^0.3.8"
+  }
+}
