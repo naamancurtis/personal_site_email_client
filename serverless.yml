@@ -1,0 +1,20 @@
+service: personal-website-email-client
+
+provider:
+  name: aws
+  runtime: rust
+
+plugins:
+  - serverless-rust
+
+package:
+  individually: true
+
+functions:
+  personal_website_email_client:
+    handler: personal_site_email_client
+
+    events:
+      - http:
+          path: contact-me
+          method: POST
