@@ -46,8 +46,9 @@ fn lambda_handler(payload: EmailEvent, _context: Context) -> Result<EmailRespons
         Ok(_) => {
             transport.close();
             Ok(EmailResponse {
-                message: "Thanks for your email, I'll endeavor to get back to you within 48 hours."
-                    .to_string(),
+                message:
+                    "Thanks for your message, I'll endeavor to get back to you within 48 hours."
+                        .to_string(),
             })
         }
         Err(_) => {
