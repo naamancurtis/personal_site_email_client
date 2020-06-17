@@ -1,46 +1,24 @@
-use lambda_runtime::{error::HandlerError, lambda, Context};
+use lambda_http::{lambda, Body, IntoResponse, Request, Response};
+use lambda_runtime::{error::HandlerError, Context};
 use lettre::smtp::authentication::Credentials;
 use lettre::{EmailAddress, Envelope, SendableEmail, SmtpClient, SmtpTransport, Transport};
-use log::info;
-use serde::{Deserialize, Serialize};
+use log::{error, info};
+use serde::Deserialize;
 
 use std::env::var;
 
 #[derive(Deserialize, Clone, Debug)]
-struct EmailEvent {
-    body: Option<String>,
+struct Email {
+    name: String,
+    email: String,
+    message: String,
 }
 
-#[derive(Deserialize, Clone, Debug)]
-pub struct Email {
-    pub name: String,
-    pub email: String,
-    pub message: String,
-}
+fn handler(request: Request, _ctx: Context) -> Result<impl IntoResponse, HandlerError> {
+    info!("Request: {:?}", request);
 
-#[derive(Serialize, Clone)]
-struct EmailResponse {
-    #[serde(rename = "isBase64Encoded")]
-    is_base64_encoded: bool,
-    #[serde(rename = "statusCode")]
-    status_code: u16,
-    body: String,
-}
-
-impl EmailResponse {
-    fn new(status_code: u16, body: String) -> Self {
-        Self {
-            is_base64_encoded: false,
-            status_code,
-            body: serde_json::to_string(&body).unwrap(),
-        }
-    }
-}
-
-fn lambda_handler(event: EmailEvent, _context: Context) -> Result<EmailResponse, HandlerError> {
-    info!("{:?}", event);
-    if let Some(payload) = event.body {
-        let email: Email = serde_json::from_str(&payload)?;
+    if let Body::Text(body) = request.body() {
+        let email = serde_json::from_str(&body).expect("failed to parse body");
 
         let from_email_address = var("USERNAME").expect("Issue grabbing email");
 
@@ -50,11 +28,17 @@ fn lambda_handler(event: EmailEvent, _context: Context) -> Result<EmailResponse,
         return match transport.send(email) {
             Ok(_) => {
                 transport.close();
-                Ok(EmailResponse::new(
-                    200,
-                    "Thanks for your message, I'll endeavor to respond within 48 hours."
-                        .to_string(),
-                ))
+
+                Ok(Response::builder()
+                    .status(200)
+                    .header("Access-Control-Allow-Origin", "*")
+                    .body(
+                        serde_json::to_string(
+                            "Thanks for your message, I'll endeavor to respond within 48 hours.",
+                        )
+                        .unwrap(),
+                    )
+                    .unwrap())
             }
             Err(_) => {
                 transport.close();
@@ -62,6 +46,11 @@ fn lambda_handler(event: EmailEvent, _context: Context) -> Result<EmailResponse,
             }
         };
     }
+
+    error!(
+        "Expected request body of type Body::Text(_) instead got {:?}",
+        request.body()
+    );
     Err("unable to send email".into())
 }
 
@@ -75,7 +64,11 @@ fn create_email(email: Email, from_email_address: String) -> SendableEmail {
         )
         .expect("Issue creating envelope"),
         format!("Contact Me: {}", email.name.clone()),
-        format!("Message sent from {} \n\n {}", email.email, email.message).into_bytes(),
+        format!(
+            "\nA request to contact: {} \n\n Email address: {} \n\n Message Start: \n\n{}",
+            email.name, email.email, email.message
+        )
+        .into_bytes(),
     )
 }
 
@@ -95,6 +88,6 @@ fn setup_transport(from_email_address: String) -> SmtpTransport {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     simple_logger::init_with_level(log::Level::Debug)?;
-    lambda!(lambda_handler);
+    lambda!(handler);
     Ok(())
 }
