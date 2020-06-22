@@ -160,7 +160,7 @@
                 "S3Bucket": {
                   "Ref": "ServerlessDeploymentBucket"
                 },
-                "S3Key": "serverless/personal-website-email-client/dev/1592829696904-2020-06-22T12:41:36.904Z/personal_site_email_client.zip"
+                "S3Key": "serverless/personal-website-email-client/dev/1592842442494-2020-06-22T16:14:02.494Z/personal_site_email_client.zip"
               },
               "FunctionName": "personal-website-email-client-dev-personal_website_email_client",
               "Handler": "personal_site_email_client",
@@ -178,14 +178,14 @@
               "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLogGroup"
             ]
           },
-          "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaVersionXtZwcuoLe1b4sVv7u2PVenDldrGV5QvUabhOQxMpLM": {
+          "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaVersion4fz2Nm934w5U1pnIaLgvIPqDVNDnuqeYDjrWkQNx7U": {
             "Type": "AWS::Lambda::Version",
             "DeletionPolicy": "Retain",
             "Properties": {
               "FunctionName": {
                 "Ref": "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaFunction"
               },
-              "CodeSha256": "tjlzBzg1kq7opblTvat6Nj9WdMDUZ+hKxXnBGJwCzAI="
+              "CodeSha256": "YAJjYpEXW3wpjXikkwVT2+hxp62bpHEkwE0+Pvpab4E="
             }
           },
           "ApiGatewayRestApi": {
@@ -258,7 +258,7 @@
               "MethodResponses": []
             }
           },
-          "ApiGatewayDeployment1592829679517": {
+          "ApiGatewayDeployment1592842429020": {
             "Type": "AWS::ApiGateway::Deployment",
             "Properties": {
               "RestApiId": {
@@ -317,7 +317,7 @@
           "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaFunctionQualifiedArn": {
             "Description": "Current Lambda function version",
             "Value": {
-              "Ref": "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaVersionXtZwcuoLe1b4sVv7u2PVenDldrGV5QvUabhOQxMpLM"
+              "Ref": "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaVersion4fz2Nm934w5U1pnIaLgvIPqDVNDnuqeYDjrWkQNx7U"
             }
           },
           "ServiceEndpoint": {
@@ -438,7 +438,7 @@
         "timeout": 6,
         "runtime": "provided",
         "vpc": {},
-        "versionLogicalId": "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaVersionXtZwcuoLe1b4sVv7u2PVenDldrGV5QvUabhOQxMpLM"
+        "versionLogicalId": "PersonalUnderscorewebsiteUnderscoreemailUnderscoreclientLambdaVersion4fz2Nm934w5U1pnIaLgvIPqDVNDnuqeYDjrWkQNx7U"
       }
     },
     "serviceFilename": "serverless.yml",
@@ -447,7 +447,7 @@
   },
   "package": {
     "individually": true,
-    "artifactDirectoryName": "serverless/personal-website-email-client/dev/1592829696904-2020-06-22T12:41:36.904Z",
+    "artifactDirectoryName": "serverless/personal-website-email-client/dev/1592842442494-2020-06-22T16:14:02.494Z",
     "artifact": ""
   }
 }
