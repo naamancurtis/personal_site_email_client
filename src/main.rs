@@ -16,6 +16,23 @@ struct Email {
 
 fn handler(request: Request, _ctx: Context) -> Result<impl IntoResponse, HandlerError> {
     info!("Request: {:?}", request);
+    let env_origin = var("ORIGIN").expect("Issue finding origin");
+
+    match request.headers().get("origin") {
+        Some(origin) => {
+            let split_origin: Vec<&str> = origin.to_str().unwrap().split("//").collect();
+            // Website is always served over https, if the origin isn't, then deny the request
+            if split_origin[0] != "https:" {
+                return Ok(generate_response(403));
+            }
+
+            // Check the origin is what is expected
+            if split_origin[1] != env_origin && split_origin[1] != format!("www.{}", env_origin) {
+                return Ok(generate_response(403));
+            }
+        }
+        _ => return Ok(generate_response(403)),
+    }
 
     if let Body::Text(body) = request.body() {
         let email = serde_json::from_str(&body).expect("failed to parse body");
@@ -29,20 +46,11 @@ fn handler(request: Request, _ctx: Context) -> Result<impl IntoResponse, Handler
             Ok(_) => {
                 transport.close();
 
-                Ok(Response::builder()
-                    .status(200)
-                    .header("Access-Control-Allow-Origin", "*")
-                    .body(
-                        serde_json::to_string(
-                            "Thanks for your message, I'll endeavor to respond within 48 hours.",
-                        )
-                        .unwrap(),
-                    )
-                    .unwrap())
+                Ok(generate_response(200))
             }
             Err(_) => {
                 transport.close();
-                Err("unable to send email".into())
+                Ok(generate_response(500))
             }
         };
     }
@@ -51,7 +59,7 @@ fn handler(request: Request, _ctx: Context) -> Result<impl IntoResponse, Handler
         "Expected request body of type Body::Text(_) instead got {:?}",
         request.body()
     );
-    Err("unable to send email".into())
+    Ok(generate_response(400))
 }
 
 fn create_email(email: Email, from_email_address: String) -> SendableEmail {
@@ -86,8 +94,18 @@ fn setup_transport(from_email_address: String) -> SmtpTransport {
     .transport()
 }
 
+/// Only interested in the status code, no endpoints
+/// actually return any data
+fn generate_response(status_code: u16) -> Response<()> {
+    Response::builder()
+        .header("Access-Control-Allow-Origin", "*")
+        .status(status_code)
+        .body(())
+        .unwrap()
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    simple_logger::init_with_level(log::Level::Debug)?;
+    simple_logger::init_with_level(log::Level::Info)?;
     lambda!(handler);
     Ok(())
 }
